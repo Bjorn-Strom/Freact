@@ -31,20 +31,38 @@ module playground =
               AnimationTimingFunction.linear
             ]
 
+    let container =
+        fss [ Display.flex
+              FlexDirection.column
+              Width' <| px 200 ]
 
     let myView =
         let (n, setN) = useState 0
         div
-            |> className background
-            <| [ h1 <| [ str "Hello world" ]
+            <| [ div
+                    |> className background
+                    <| [ h1 <| [ str "Hello world" ]
+
+                         div
+                            |> className spinimation
+                            <| [ ]
+
+                         h2
+                            |> className text
+                            <| [ str "from Freact" ]]
 
                  div
-                    |> className spinimation
-                    <| [ ]
-
-                 h2
-                    |> className text
-                    <| [ str "from Freact" ]]
+                    |> className container
+                    <| [ p <| [ str "A paragraph of text? Naah" ]
+                         input
+                            |> type'.text
+                         input
+                            |> type'.password
+                         button
+                            |> onClick (fun _ -> printfn "Button!")
+                            <| [ str "Click me!" ]
+                       ]
+                ]
 
     let rootContainer = document.getElementById "app"
 

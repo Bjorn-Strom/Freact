@@ -79,8 +79,6 @@ module Lib =
         let mutable state = s
         (s, fun s' -> state <- s')
 
-
-
     let rec render element (container: Browser.Types.HTMLElement) =
         let (element, attributes: HtmlAttributes) = element
         let newDomElement =
@@ -96,6 +94,8 @@ module Lib =
         | ElementNode e ->
             if attributes.ClassName.IsSome then
                 e.setAttribute("class", attributes.ClassName.Value)
+            if attributes.Type.IsSome then
+                e.setAttribute("type", duToString attributes.Type.Value)
             if attributes.OnClick.IsSome then
                 e.addEventListener("click", fun _ -> attributes.OnClick.Value ())
                                                 // Hack hack hack
