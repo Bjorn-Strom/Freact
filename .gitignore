@@ -6,6 +6,8 @@
 .parcel-cache
 dist/
 node_modules/
+.idea/
+public/*.js
 
 ### fsharp ###
 lib/debug

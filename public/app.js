@@ -1,10 +1,10 @@
-import { MatchFailureException, Record, Union } from "./.fable/fable-library.3.1.15/Types.js";
-import { class_type, record_type, list_type, tuple_type, lambda_type, unit_type, option_type, union_type, string_type } from "./.fable/fable-library.3.1.15/Reflection.js";
+import { Record, Union } from "./.fable/fable-library.3.1.15/Types.js";
+import { name, getUnionFields, class_type, record_type, list_type, tuple_type, lambda_type, unit_type, option_type, union_type, string_type } from "./.fable/fable-library.3.1.15/Reflection.js";
 import { iterate, ofArray, singleton, empty } from "./.fable/fable-library.3.1.15/List.js";
 import { toText, printf, toConsole } from "./.fable/fable-library.3.1.15/String.js";
 import { value as value_2 } from "./.fable/fable-library.3.1.15/Option.js";
 
-export class HtmlTag extends Union {
+export class Element$ extends Union {
     constructor(tag, ...fields) {
         super();
         this.tag = (tag | 0);
@@ -15,8 +15,8 @@ export class HtmlTag extends Union {
     }
 }
 
-export function HtmlTag$reflection() {
-    return union_type("Freact.Freact.HtmlTag", [], HtmlTag, () => [[], [["Item", string_type]]]);
+export function Element$$reflection() {
+    return union_type("Freact.Freact.Element", [], Element$, () => [[], [["Item", string_type]]]);
 }
 
 export class HtmlAttributes extends Record {
@@ -29,69 +29,48 @@ export class HtmlAttributes extends Record {
 }
 
 export function HtmlAttributes$reflection() {
-    return record_type("Freact.Freact.HtmlAttributes", [], HtmlAttributes, () => [["ClassName", option_type(string_type)], ["OnClick", option_type(lambda_type(unit_type, unit_type))], ["Children", list_type(tuple_type(HtmlTag$reflection(), HtmlAttributes$reflection()))]]);
+    return record_type("Freact.Freact.HtmlAttributes", [], HtmlAttributes, () => [["ClassName", option_type(string_type)], ["OnClick", option_type(lambda_type(unit_type, unit_type))], ["Children", list_type(tuple_type(Element$$reflection(), HtmlAttributes$reflection()))]]);
 }
 
-export class TextNode extends Union {
+export function createNode(element, children) {
+    return [element, new HtmlAttributes(void 0, void 0, children)];
+}
+
+export class DomNode extends Union {
     constructor(tag, ...fields) {
         super();
         this.tag = (tag | 0);
         this.fields = fields;
     }
     cases() {
-        return ["TextNode"];
+        return ["TextNode", "ElementNode"];
     }
 }
 
-export function TextNode$reflection() {
-    return union_type("Freact.Freact.TextNode", [], TextNode, () => [[["Item", class_type("Browser.Types.Text")]]]);
-}
-
-function unboxTextNode(_arg1) {
-    const t = _arg1.fields[0];
-    return t;
-}
-
-export class ElementNode extends Union {
-    constructor(tag, ...fields) {
-        super();
-        this.tag = (tag | 0);
-        this.fields = fields;
-    }
-    cases() {
-        return ["ElementNode"];
-    }
-}
-
-export function ElementNode$reflection() {
-    return union_type("Freact.Freact.ElementNode", [], ElementNode, () => [[["Item", class_type("Browser.Types.HTMLElement")]]]);
-}
-
-function unboxElementNode(_arg1) {
-    const e = _arg1.fields[0];
-    return e;
+export function DomNode$reflection() {
+    return union_type("Freact.Freact.DomNode", [], DomNode, () => [[["Item", class_type("Browser.Types.Text")]], [["Item", class_type("Browser.Types.HTMLElement")]]]);
 }
 
 export function div(children) {
-    return [new HtmlTag(0), new HtmlAttributes(void 0, void 0, children)];
+    return createNode(new Element$(0), children);
 }
 
 export function str(str_1) {
-    return [new HtmlTag(1, str_1), new HtmlAttributes(void 0, void 0, empty())];
+    return createNode(new Element$(1, str_1), empty());
 }
 
 export function className(className_1, f, children) {
     const patternInput = f(children);
-    const tag = patternInput[0];
-    const rec$0027 = patternInput[1];
-    return [tag, new HtmlAttributes(className_1, rec$0027.OnClick, rec$0027.Children)];
+    const element = patternInput[0];
+    const attributes = patternInput[1];
+    return [element, new HtmlAttributes(className_1, attributes.OnClick, attributes.Children)];
 }
 
 export function onClick(onClick_1, f, children) {
     const patternInput = f(children);
-    const tag = patternInput[0];
-    const rec$0027 = patternInput[1];
-    return [tag, new HtmlAttributes(rec$0027.ClassName, onClick_1, rec$0027.Children)];
+    const element = patternInput[0];
+    const attributes = patternInput[1];
+    return [element, new HtmlAttributes(attributes.ClassName, onClick_1, attributes.Children)];
 }
 
 export function useState(s) {
@@ -115,38 +94,35 @@ export const myView = (() => {
 export const rootContainer = document.getElementById("app");
 
 export function render(element_0, element_1, container) {
+    let case$;
     const element = [element_0, element_1];
-    const tag = element[0];
+    const element_2 = element[0];
     const attributes = element[1];
     let newDomElement;
-    if (tag.tag === 0) {
-        newDomElement = (new ElementNode(0, document.createElement("div")));
+    if (element_2.tag === 1) {
+        const s = element_2.fields[0];
+        newDomElement = (new DomNode(0, document.createTextNode(s)));
     }
     else {
-        const s = tag.fields[0];
-        newDomElement = (new TextNode(0, document.createTextNode(s)));
+        newDomElement = (new DomNode(1, document.createElement((case$ = getUnionFields(element_2, Element$$reflection())[0], name(case$)))));
     }
-    if (newDomElement instanceof TextNode) {
-        const t = newDomElement;
-        void container.appendChild(unboxTextNode(t));
-    }
-    else if (newDomElement instanceof ElementNode) {
-        const e = newDomElement;
-        const e_1 = unboxElementNode(e);
+    if (newDomElement.tag === 1) {
+        const e = newDomElement.fields[0];
         if (attributes.OnClick != null) {
-            e_1.addEventListener("click", (_arg1) => {
+            e.addEventListener("click", (_arg1) => {
                 value_2(attributes.OnClick)();
                 rootContainer.innerHTML = "";
                 render(myView[0], myView[1], rootContainer);
             });
         }
-        iterate((x) => {
-            render(x[0], x[1], e_1);
+        iterate((x_1) => {
+            render(x_1[0], x_1[1], e);
         }, attributes.Children);
-        void container.appendChild(e_1);
+        void container.appendChild(e);
     }
     else {
-        throw (new MatchFailureException("/Users/bjornivarstrom/Documents/functional/Felm/app.fs", 85, 14));
+        const t = newDomElement.fields[0];
+        void container.appendChild(t);
     }
 }
 

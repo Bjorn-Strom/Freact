@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="app.fs" />
+    <Compile Include="freact.fs" />
   </ItemGroup>
 
   <ItemGroup>
