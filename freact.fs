@@ -1,6 +1,6 @@
 namespace Freact
 
-module Freact =
+module Lib =
     open Browser.Dom
     open Microsoft.FSharp.Reflection
 
@@ -14,6 +14,13 @@ module Freact =
         | Text
 
     type Element =
+        | H1
+        | H2
+        | H3
+        | H4
+        | H5
+        | H6
+        | P
         | Div
         | Input
         | Button
@@ -40,6 +47,13 @@ module Freact =
         | TextNode of Browser.Types.Text
         | ElementNode of Browser.Types.HTMLElement
 
+    let h1 children = createNode H1 children
+    let h2 children = createNode H2 children
+    let h3 children = createNode H3 children
+    let h4 children = createNode H4 children
+    let h5 children = createNode H5 children
+    let h6 children = createNode H6 children
+    let p children = createNode P children
     let div children = createNode Div children
     let input = createNode Input []
     let button children = createNode Button children
@@ -65,34 +79,7 @@ module Freact =
         let mutable state = s
         (s, fun s' -> state <- s')
 
-    let myView =
-        let (n, setN) = useState 0
-        div
-            |> className "lol"
-            |> onClick (fun () -> setN (n + 1))
-            <| [ div
-                    |> className "Duck"
-                    <| [ str "Carts" ]
 
-                 div
-                    |> onClick (fun () -> printf "you")
-                    <| [ str "Sticks"]
-
-                 div
-                    <| [ str (sprintf "%A" n)]
-
-                 input
-                    |> type'.password
-
-                 input
-                    |> type'.text
-
-                 button
-                    |> onClick (fun _ -> printfn "Click a button")
-                    <| [ str "A button!" ]
-               ]
-
-    let rootContainer = document.getElementById "app"
 
     let rec render element (container: Browser.Types.HTMLElement) =
         let (element, attributes: HtmlAttributes) = element
@@ -107,13 +94,12 @@ module Freact =
         | TextNode t ->
             container.appendChild t |> ignore
         | ElementNode e ->
+            if attributes.ClassName.IsSome then
+                e.setAttribute("class", attributes.ClassName.Value)
             if attributes.OnClick.IsSome then
-                e.addEventListener("click", fun _ ->
-                                                attributes.OnClick.Value ()
+                e.addEventListener("click", fun _ -> attributes.OnClick.Value ())
                                                 // Hack hack hack
-                                                rootContainer.innerHTML <- ""
-                                                render myView rootContainer)
+                                                //rootContainer.innerHTML <- ""
+                                                // render myView rootContainer)
             List.iter (fun x -> render x e) attributes.Children
             container.appendChild e |> ignore
-
-    render myView rootContainer
