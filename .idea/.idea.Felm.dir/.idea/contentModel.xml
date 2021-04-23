@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="$PROJECT_DIR$" t="IncludeRecursive">
+      <e p="app.fs" t="Include" />
+      <e p="bin" t="ExcludeRecursive" />
+      <e p="Freact.fsproj" t="IncludeRecursive" />
+      <e p="node_modules/@babel/core" t="IncludeRecursive" />
+      <e p="node_modules/@babel/plugin-transform-modules-commonjs" t="IncludeRecursive" />
+      <e p="node_modules/@babel/preset-react" t="IncludeRecursive" />
+      <e p="node_modules/@emotion/cache" t="IncludeRecursive" />
+      <e p="node_modules/@emotion/css" t="IncludeRecursive" />
+      <e p="node_modules/@emotion/hash" t="IncludeRecursive" />
+      <e p="node_modules/@emotion/memoize" t="IncludeRecursive" />
+      <e p="node_modules/@emotion/serialize" t="IncludeRecursive" />
+      <e p="node_modules/@emotion/sheet" t="IncludeRecursive" />
+      <e p="node_modules/@emotion/utils" t="IncludeRecursive" />
+      <e p="node_modules/@emotion/weak-memoize" t="IncludeRecursive" />
+      <e p="node_modules/@types" t="IncludeRecursive">
+        <e p="node" t="IncludeRecursive" />
+      </e>
+      <e p="node_modules/chalk" t="IncludeRecursive" />
+      <e p="node_modules/csstype" t="IncludeRecursive" />
+      <e p="node_modules/escape-string-regexp" t="IncludeRecursive" />
+      <e p="node_modules/import-fresh" t="IncludeRecursive" />
+      <e p="node_modules/parcel" t="IncludeRecursive" />
+      <e p="node_modules/react" t="IncludeRecursive" />
+      <e p="node_modules/react-dom" t="IncludeRecursive" />
+      <e p="obj" t="ExcludeRecursive" />
+      <e p="packages" t="ExcludeRecursive" />
+    </e>
+    <e p="$APPLICATION_CONFIG_DIR$/consoles/db" t="IncludeRecursive" />
+    <e p="$APPLICATION_CONFIG_DIR$/extensions" t="IncludeRecursive" />
+    <e p="$APPLICATION_CONFIG_DIR$/scratches" t="IncludeRecursive" />
+    <e p="$USER_HOME$/Library/Caches/JetBrains/Rider2020.3/extResources" t="IncludeRecursive" />
+    <e p="$USER_HOME$/Library/Caches/JetBrains/Rider2020.3/javascript/typings/react-dom/16.9.12/node_modules/@types/prop-types" t="IncludeRecursive" />
+    <e p="$USER_HOME$/Library/Caches/JetBrains/Rider2020.3/javascript/typings/react-dom/16.9.12/node_modules/@types/react" t="IncludeRecursive" />
+    <e p="$USER_HOME$/Library/Caches/JetBrains/Rider2020.3/javascript/typings/react-dom/16.9.12/node_modules/@types/react-dom" t="IncludeRecursive" />
+    <e p="$USER_HOME$/Library/Caches/JetBrains/Rider2020.3/javascript/typings/react-dom/16.9.12/node_modules/@types/scheduler" t="IncludeRecursive" />
+    <e p="$USER_HOME$/Library/Caches/JetBrains/Rider2020.3/javascript/typings/react-dom/16.9.12/node_modules/csstype" t="IncludeRecursive" />
+    <e p="$USER_HOME$/Library/Caches/JetBrains/Rider2020.3/resharper-host/local/Transient/Rider/v203/SolutionCaches/_.19.00" t="ExcludeRecursive" />
+  </component>
+</project>
