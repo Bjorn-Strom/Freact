@@ -42,7 +42,7 @@ module playground =
     let propExample name =
         p <| [ str $"Hello {name}" ]
 
-    let slow () =
+    let clicker () =
         let hover = fss [
             BorderColor.black
             BorderStyle.solid
@@ -58,8 +58,21 @@ module playground =
                 |> className hover
                 <|  []))
 
+    let counter props =
+        let (counter, setCounter) = useState<int>(props)
+        div
+            <| [ button |> onClick (fun _ ->
+                    setCounter (counter + 1))
+                    <| [ str "+" ]
+
+                 button |> onClick (fun _ ->
+                    setCounter (counter - 1))
+                    <| [ str "-" ]
+
+                 p <| [ str <| string counter ]
+               ]
+
     let myView =
-        let (n, setN) = useState 0
         div
             <| [ div
                     |> className background
@@ -85,14 +98,14 @@ module playground =
                             <| [ str "Click me!" ]
                        ]
                  propExample "you!"
+                 counter </> 0
 
-                 slow ()
+                 clicker </> ()
                 ]
 
-    let rootContainer = document.getElementById "app"
 
-    //render myView rootContainer
 
+    (*
     let reconcileTest1 =
         div
          <| [ div <| [ p <| [ str "Hello there" ] ]
@@ -131,24 +144,30 @@ module playground =
 
     let reconcileTest3 =
         div
-         <| [ //div
-               // <| [ p
-              //          <| [ str "Hello there" ]
-              //       button
-              //          |> onClick (fun _ -> printfn "Hello son")
-              //          <| [ str "Hello son!" ] ]
-              //div <| [ str "Some text here" ]
+         <| [ div
+              <| [ p
+                        <| [ str "Hello there" ]
+                   button
+                        |> onClick (fun _ -> printfn "Hello son")
+                        <| [ str "Hello son!" ] ]
+              div <| [ str "Some text here" ]
               komponent </> 0
-              //k1 </> 0
+              k1 </> 0
             ]
 
     //render reconcileTest1 rootContainer
     //render reconcileTest2 rootContainer
+    render reconcileTest3 rootContainer
+    *)
+
+
+    let rootContainer = document.getElementById "app"
+    render myView rootContainer
+
     reRender <- fun () ->
         rootContainer.innerHTML <- ""
-        render reconcileTest3 rootContainer
+        render myView rootContainer
 
-    render reconcileTest3 rootContainer
 
 
 

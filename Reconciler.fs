@@ -143,10 +143,6 @@ let rec private reconcile (currentDom: Html) (newDom: Html) =
             container.appendChild e |> ignore
 
     let render (element: Html) (container: HTMLElement) =
-
-        // Bare surr
-        // Prøv å finn ut av hva path og index skal være
-
         let rec createVirtualDom (element: Element * (unit -> HtmlAttributes)) (path: PathElement list) =
             let (element, attributes: unit -> HtmlAttributes) = element
             currentIndex <- 0
@@ -157,9 +153,7 @@ let rec private reconcile (currentDom: Html) (newDom: Html) =
                 else
                     []
             let attributes = attributes ()
-            // Assign currenstate tilbake til main state
             stateMap <- stateMap.Add(currentPath, currentState)
-            printfn "%A" stateMap
             let children: VirtualDom list = List.mapi (fun i x -> createVirtualDom x
                                                                       (let element, _ = x
                                                                        let nameOfElement = duToString element
@@ -169,6 +163,21 @@ let rec private reconcile (currentDom: Html) (newDom: Html) =
             | Element.H1 ->
                 path <- "h1"
                 H1, (createVirtualDomAttributes attributes children)
+            | Element.H2 ->
+                path <- "h1"
+                H2, (createVirtualDomAttributes attributes children)
+            | Element.H3 ->
+                path <- "h1"
+                H3, (createVirtualDomAttributes attributes children)
+            | Element.H4 ->
+                path <- "h1"
+                H4, (createVirtualDomAttributes attributes children)
+            | Element.H5 ->
+                path <- "h1"
+                H5, (createVirtualDomAttributes attributes children)
+            | Element.H6 ->
+                path <- "h1"
+                H6, (createVirtualDomAttributes attributes children)
             | Element.P ->
                 path <- "p"
                 P, (createVirtualDomAttributes attributes children)
