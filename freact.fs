@@ -1,7 +1,8 @@
 namespace Freact
 
+// Used to build an internal representation of the component tree
+
 module Lib =
-    open Browser.Dom
     open Microsoft.FSharp.Reflection
 
     let inline duToString (x:'a): string=
@@ -25,27 +26,34 @@ module Lib =
         | Input
         | Button
         | Str of string
+        | Component of string
 
-    type HtmlAttributes =
+
+    and HtmlAttributes =
         { ClassName: string option
           OnClick: (unit -> unit) option
           Type: Type option
           Children: Html list
         }
 
-    and Html = Element * HtmlAttributes
+    and Html = Element * (unit -> HtmlAttributes)
 
-    let createNode element children =
-        element,
-        { ClassName = None
-          OnClick = None
-          Type = None
-          Children = children
-        }
+    let ( </> ) comp props: Html =
+        (Component <| (comp.ToString()), fun () ->
+            { ClassName = None
+              OnClick = None
+              Type = None
+              Children = [ comp props ]
+            })
 
-    type DomNode =
-        | TextNode of Browser.Types.Text
-        | ElementNode of Browser.Types.HTMLElement
+    let createNode element children: Html =
+          element,
+          fun () ->
+            { ClassName = None
+              OnClick = None
+              Type = None
+              Children = children
+            }
 
     let h1 children = createNode H1 children
     let h2 children = createNode H2 children
@@ -59,47 +67,18 @@ module Lib =
     let button children = createNode Button children
     let str str = createNode (Str str) []
 
-    let className className f children =
-        let (element: Element, attributes) = f children
-        element, { attributes with ClassName = Some className }
+    let className className (f: Html list -> Html) (children: Html list): Html =
+        let (element, attributes) = f children
+        element, fun () -> { attributes () with ClassName = Some className }
 
-    let onClick onClick f children =
-         let (element: Element, attributes) = f children
-         element, { attributes with OnClick = Some onClick }
+    let onClick onClick (f: Html list -> Html) (children: Html list): Html =
+        let (element, attributes) = f children
+        element, fun () -> { attributes () with OnClick = Some onClick }
 
     type type' =
         static member password f =
             let (element, attributes) = f
-            element, { attributes with Type = Some Password }
+            element, fun () -> { attributes () with Type = Some Password }
         static member text f =
             let (element, attributes) = f
-            element, { attributes with Type = Some Text }
-
-    let useState s =
-        let mutable state = s
-        (s, fun s' -> state <- s')
-
-    let rec render element (container: Browser.Types.HTMLElement) =
-        let (element, attributes: HtmlAttributes) = element
-        let newDomElement =
-            match element with
-            | Str s ->
-                document.createTextNode s |> TextNode
-            | _ ->
-                document.createElement (duToString element)  |> DomNode.ElementNode
-
-        match newDomElement with
-        | TextNode t ->
-            container.appendChild t |> ignore
-        | ElementNode e ->
-            if attributes.ClassName.IsSome then
-                e.setAttribute("class", attributes.ClassName.Value)
-            if attributes.Type.IsSome then
-                e.setAttribute("type", duToString attributes.Type.Value)
-            if attributes.OnClick.IsSome then
-                e.addEventListener("click", fun _ -> attributes.OnClick.Value ())
-                                                // Hack hack hack
-                                                //rootContainer.innerHTML <- ""
-                                                // render myView rootContainer)
-            List.iter (fun x -> render x e) attributes.Children
-            container.appendChild e |> ignore
+            element, fun () -> { attributes () with Type = Some Text }
