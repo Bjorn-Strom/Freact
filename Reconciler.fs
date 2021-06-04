@@ -9,71 +9,6 @@ module Reconciler =
     open Lib
     open Hooks
 
-    (*
-    let rec private createElement element =
-        match element with
-        | Str s ->
-            document.createTextNode s |> TextNode
-        | _ ->
-            document.createElement (duToString element) |> DomNode.ElementNode
-
-    let rec attachElement (container: Browser.Types.HTMLElement) (attributes: HtmlAttributes) domNode =
-        match domNode with
-        | TextNode t ->
-            container.appendChild t |> ignore
-        | ElementNode e ->
-            if attributes.ClassName.IsSome then
-                e.setAttribute("class", attributes.ClassName.Value)
-            if attributes.Type.IsSome then
-                e.setAttribute("type", duToString attributes.Type.Value)
-            if attributes.OnClick.IsSome then
-                e.addEventListener("click", fun _ -> attributes.OnClick.Value ())
-                                                // Hack hack hack
-                                                //rootContainer.innerHTML <- ""
-                                                // render myView rootContainer)
-            List.iter (fun (element, attributes) -> createElement element) |> attachElement e (attributes ()) attributes.Children
-            container.appendChild e |> ignore
-
-let rec private reconcile (currentDom: Html) (newDom: Html) =
-        let (currentDomElement, currentDomAttributes) = currentDom
-        let (newDomElement, newDomAttributes) = newDom
-
-        if currentDomElement = newDomElement then
-            // Keys her?
-            let children =
-                if List.length newDomAttributes.Children > List.length currentDomAttributes.Children then
-                    newDomAttributes.Children
-                else
-                    List.map2 reconcile currentDomAttributes.Children newDomAttributes.Children
-            (currentDomElement, {newDomAttributes with Children = children })
-        else
-            newDom
-*)
-
-
-    /////////////////////////
-
-
-    (*
-    type Fiber =
-        { Type: Html
-          Attributes: HtmlAttributes
-          DomElement: DomNode
-          Path: PathElement list
-          Key: string
-          Children: Fiber list
-        }
-        Type: Div/BUutton (min type)
-        Attributes: HtmlAttributes
-        Element: HTMLElement
-        Path: string list
-        Key: Unikt identifisere denne
-        State: Har denne state?
-        let mutable foobar: Fiber option = None
-    *)
-
-    //let mutable rootElement: Html option = None
-
     // Used to build a virtual dom, AKA what do we want to draw
     type VirtualDomElement =
         | H1
@@ -154,44 +89,45 @@ let rec private reconcile (currentDom: Html) (newDom: Html) =
                     []
             let attributes = attributes ()
             stateMap <- stateMap.Add(currentPath, currentState)
-            let children: VirtualDom list = List.mapi (fun i x -> createVirtualDom x
-                                                                      (let element, _ = x
-                                                                       let nameOfElement = duToString element
-                                                                       currentPath @ [{ Name = nameOfElement; Index = i }])) attributes.Children
+            let children: VirtualDom list =
+                List.mapi (fun i x -> createVirtualDom x
+                                          (let element, _ = x
+                                           let nameOfElement = duToString element
+                                           currentPath @ [{ Name = nameOfElement; Index = i }])) attributes.Children
             let mutable path = "";
             match element with
             | Element.H1 ->
-                path <- "h1"
+                path <- duToString element
                 H1, (createVirtualDomAttributes attributes children)
             | Element.H2 ->
-                path <- "h1"
+                path <- duToString element
                 H2, (createVirtualDomAttributes attributes children)
             | Element.H3 ->
-                path <- "h1"
+                path <- duToString element
                 H3, (createVirtualDomAttributes attributes children)
             | Element.H4 ->
-                path <- "h1"
+                path <- duToString element
                 H4, (createVirtualDomAttributes attributes children)
             | Element.H5 ->
-                path <- "h1"
+                path <- duToString element
                 H5, (createVirtualDomAttributes attributes children)
             | Element.H6 ->
-                path <- "h1"
+                path <- duToString element
                 H6, (createVirtualDomAttributes attributes children)
             | Element.P ->
-                path <- "p"
+                path <- duToString element
                 P, (createVirtualDomAttributes attributes children)
             | Element.Div ->
-                path <- "div"
+                path <- duToString element
                 Div, (createVirtualDomAttributes attributes children)
             | Element.Input ->
-                path <- "input"
+                path <- duToString element
                 Input, (createVirtualDomAttributes attributes children)
             | Element.Button ->
-                path <- "button"
+                path <- duToString element
                 Button, (createVirtualDomAttributes attributes children)
             | Element.Str s ->
-                path <- "str"
+                path <- duToString element
                 Str s, (createVirtualDomAttributes attributes children)
             | Element.Component c ->
                 createVirtualDom (List.head attributes.Children) currentPath
@@ -201,6 +137,96 @@ let rec private reconcile (currentDom: Html) (newDom: Html) =
         |> attach container
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    (*
+    let rec private createElement element =
+        match element with
+        | Str s ->
+            document.createTextNode s |> TextNode
+        | _ ->
+            document.createElement (duToString element) |> DomNode.ElementNode
+
+    let rec attachElement (container: Browser.Types.HTMLElement) (attributes: HtmlAttributes) domNode =
+        match domNode with
+        | TextNode t ->
+            container.appendChild t |> ignore
+        | ElementNode e ->
+            if attributes.ClassName.IsSome then
+                e.setAttribute("class", attributes.ClassName.Value)
+            if attributes.Type.IsSome then
+                e.setAttribute("type", duToString attributes.Type.Value)
+            if attributes.OnClick.IsSome then
+                e.addEventListener("click", fun _ -> attributes.OnClick.Value ())
+                                                // Hack hack hack
+                                                //rootContainer.innerHTML <- ""
+                                                // render myView rootContainer)
+            List.iter (fun (element, attributes) -> createElement element) |> attachElement e (attributes ()) attributes.Children
+            container.appendChild e |> ignore
+
+let rec private reconcile (currentDom: Html) (newDom: Html) =
+        let (currentDomElement, currentDomAttributes) = currentDom
+        let (newDomElement, newDomAttributes) = newDom
+
+        if currentDomElement = newDomElement then
+            // Keys her?
+            let children =
+                if List.length newDomAttributes.Children > List.length currentDomAttributes.Children then
+                    newDomAttributes.Children
+                else
+                    List.map2 reconcile currentDomAttributes.Children newDomAttributes.Children
+            (currentDomElement, {newDomAttributes with Children = children })
+        else
+            newDom
+*)
+
+
+    /////////////////////////
+
+
+    (*
+    type Fiber =
+        { Type: Html
+          Attributes: HtmlAttributes
+          DomElement: DomNode
+          Path: PathElement list
+          Key: string
+          Children: Fiber list
+        }
+        Type: Div/BUutton (min type)
+        Attributes: HtmlAttributes
+        Element: HTMLElement
+        Path: string list
+        Key: Unikt identifisere denne
+        State: Har denne state?
+        let mutable foobar: Fiber option = None
+    *)
+
+    //let mutable rootElement: Html option = None
 
         //let (element', attributes) = element
         //match rootElement with

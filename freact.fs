@@ -1,7 +1,6 @@
 namespace Freact
 
 // Used to build an internal representation of the component tree
-
 module Lib =
     open Microsoft.FSharp.Reflection
 
@@ -31,6 +30,7 @@ module Lib =
 
     and HtmlAttributes =
         { ClassName: string option
+          // Burde være Browser.Types.Mouseevent -> unit?
           OnClick: (unit -> unit) option
           Type: Type option
           Children: Html list

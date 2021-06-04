@@ -43,20 +43,26 @@ module playground =
         p <| [ str $"Hello {name}" ]
 
     let clicker () =
-        let hover = fss [
+        let length = 100
+        let (blocks, setBlocks) = useState<int array> (Array.create length 0)
+        let hover n = fss [
             BorderColor.black
             BorderStyle.solid
             BorderWidth.thin
             Width' <| px 20
             Height' <| px 20
+            if n = 1 then BackgroundColor.red
             Hover [ BackgroundColor.blue ] ]
         div
             |> className (fss [Display.flex; FlexDirection.row; FlexWrap.wrap])
-            <| ([0..100]
-            |> List.map (fun _ ->
+            <| (blocks
+            |> Array.mapi (fun index value ->
                 div
-                |> className hover
-                <|  []))
+                |> className (hover value)
+                |> onClick (fun _ ->
+                    blocks.[index] <- if blocks.[index] = 1 then 0 else 1
+                    setBlocks blocks)
+                <|  []) |> Array.toList)
 
     let counter props =
         let (counter, setCounter) = useState<int>(props)
