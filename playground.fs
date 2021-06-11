@@ -1,6 +1,7 @@
 namespace Freact
 
 open Freact
+open Fable.Core.JsInterop
 
 module playground =
     open Browser.Dom
@@ -39,9 +40,6 @@ module playground =
               FlexDirection.column
               Width' <| px 200 ]
 
-    let propExample name =
-        p <| [ str $"Hello {name}" ]
-
     let clicker () =
         let length = 100
         let (blocks, setBlocks) = useState<int array> (Array.create length 0)
@@ -78,7 +76,65 @@ module playground =
                  p <| [ str <| string counter ]
                ]
 
-    let myView =
+    let appearDissapear =
+        let aComponent () =
+            let (count, setCount) = useState 0
+            div <| [
+                button
+                |> onClick (fun _ -> setCount (count + 1))
+                <| [ str "+" ]
+                button
+                |> onClick (fun _ -> setCount (count - 1))
+                <| [ str "-" ]
+                str (string count)
+                if count > 5 then
+                    h2 [ str "Text is big now" ]
+                else if count <  -5 then
+                    h2 [ str "Text is small now" ]
+            ]
+
+        div
+            <| [
+                h2 <| [ str "Hello" ]
+                aComponent </> ()
+
+            ]
+
+    let loginForm () =
+         let (username, setUsername) = useState ""
+         let (password, setPassword) = useState ""
+
+         div
+            |> className container
+            <| [ p <| [ str "A paragraph of text? Naah" ]
+                 input
+                    |> type'.text
+                    |> onChange (fun e -> setUsername $"{username}{e.target?value}")
+                 input
+                    |> type'.password
+                    |> onChange (fun e -> setPassword $"{password}{e.target?value}")
+                 p <| [ str $"Your username is: {username}" ]
+                 p <| [ str $"Your password is: {password}" ]
+                 button
+                    |> onClick (fun _ -> printfn "Button!")
+                    <| [ str "Click me!" ]
+               ]
+
+    let setStateTests =
+        div <|
+           [ h2 <| [ str "Set state testing" ]
+
+             str "A counter"
+             counter </> 0
+             str "A clicker that changes color"
+             clicker </> ()
+             str "A clicker that renders text conditionally"
+             appearDissapear
+             str "Please log in"
+             loginForm </> ()
+            ]
+
+    let app =
         div
             <| [ div
                     |> className background
@@ -92,101 +148,16 @@ module playground =
                             |> className text
                             <| [ str "from Freact" ]]
 
-                 div
-                    |> className container
-                    <| [ p <| [ str "A paragraph of text? Naah" ]
-                         input
-                            |> type'.text
-                         input
-                            |> type'.password
-                         button
-                            |> onClick (fun _ -> printfn "Button!")
-                            <| [ str "Click me!" ]
-                       ]
-                 propExample "you!"
-                 counter </> 0
-
-                 clicker </> ()
+                 setStateTests
                 ]
 
 
-
-    (*
-    let reconcileTest1 =
-        div
-         <| [ div <| [ p <| [ str "Hello there" ] ]
-              div <| []
-            ]
-
-    let reconcileTest2 =
-        div
-         <| [ div <| [ button <| [ str "Hello son!" ] ]
-              div <| []
-            ]
-
-    let komponent props =
-        let (counter, setCounter) = useState<int>(props)
-        div
-            <| [ button |> onClick (fun _ ->
-                    setCounter (counter + 1))
-                    <| [ str "+" ]
-
-                 button |> onClick (fun _ ->
-                    setCounter (counter - 1))
-                    <| [ str "-" ]
-
-                 p <| [ str <| string counter ]
-
-               ]
-
-    let k3 props =
-        div <| [ str (string props) ]
-
-    let k2 props =
-        k3 </> props
-
-    let k1 props =
-        k2 </> props
-
-    let reconcileTest3 =
-        div
-         <| [ div
-              <| [ p
-                        <| [ str "Hello there" ]
-                   button
-                        |> onClick (fun _ -> printfn "Hello son")
-                        <| [ str "Hello son!" ] ]
-              div <| [ str "Some text here" ]
-              komponent </> 0
-              k1 </> 0
-            ]
-
-    //render reconcileTest1 rootContainer
-    //render reconcileTest2 rootContainer
-    render reconcileTest3 rootContainer
-    *)
-
-
     let rootContainer = document.getElementById "app"
-    render myView rootContainer
+
+
+
+    render app rootContainer
 
     reRender <- fun () ->
-        //rootContainer.innerHTML <- ""
-        render myView rootContainer
-
-
-    let reconcileTest1 =
-        div
-         <| [ div <| [ p <| [ str "Hello there" ] ]
-              div <| []
-            ]
-
-    let reconcileTest2 =
-        div
-         <| [ div <| [ button <| [ str "Hello son!" ] ]
-              div <| []
-            ]
-
-
-    //render reconcileTest1 rootContainer
-    //render reconcileTest2 rootContainer
+        rootContainer.innerText <- ""
+        render app rootContainer

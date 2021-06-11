@@ -25,6 +25,7 @@ module Reconciler =
     and VirtualDomAttributes =
         { ClassName: string option
           OnClick: (unit -> unit) option
+          OnChange: (Browser.Types.Event -> Unit) option
           Type: Type option
           Children: VirtualDom list
         }
@@ -33,6 +34,7 @@ module Reconciler =
     let createVirtualDomAttributes (attributes: HtmlAttributes) children =
         { ClassName = attributes.ClassName
           OnClick = attributes.OnClick
+          OnChange = attributes.OnChange
           Type = attributes.Type
           Children = children
         }
@@ -62,6 +64,9 @@ module Reconciler =
                 domElement.setAttribute("type", duToString attributes.Type.Value)
             if attributes.OnClick.IsSome then
                 domElement.addEventListener("click", fun _ -> attributes.OnClick.Value ())
+            // Dersom input eller textArea så må dette være input noe annet change
+            if attributes.OnChange.IsSome then
+                domElement.addEventListener("input", fun e -> attributes.OnChange.Value e)
 
             let children = List.map createDomElement attributes.Children
 
@@ -77,43 +82,19 @@ module Reconciler =
             List.iter (fun x -> attach e x) dom.Children
             container.appendChild e |> ignore
 
+    // Crappy reconciliation that doesnt work. FIX!
     let rec private reconcile (currentDom: VirtualDom option) (newDom: VirtualDom): VirtualDom =
-        printfn "CurrentDom: %A" currentDom
-        printfn "NewDom: %A" newDom
-
-        (*
-
-if the old fiber and the new element have the same type,
-we can keep the DOM node and just update it with the new props
-
-if the type is different and there is a new element,
-it means we need to create a new DOM node
-
-and if the types are different and there is an old fiber,
-we need to remove the old node
-
-        *)
-
         match currentDom with
         | Some dom ->
             let (currentElement, currentAttributes) = dom
             let (newElement, newAttributes) = newDom
 
-            printfn "Dom already exists, reconciling..."
-
-            // Er det samme element? Reconcile barna
             if currentElement = newElement then
-                printfn "THe elements are the same, we need to reconcile the children"
                 let reconciledChildren = List.map2 (fun c n -> reconcile (Some c) n) currentAttributes.Children newAttributes.Children
                 (newElement, { newAttributes with Children = reconciledChildren })
-            // Dersom typen er forskjellig bruker vi den nye
             else
-                printfn "The elements are not the same. Just use the new one"
                 newDom
-        // Hvis currentdom ikke finnes, bruk newDom
         | None ->
-            printfn "No dom exists. Use newDom"
-            printfn ""
             newDom
 
     let mutable currentVirtualDom: VirtualDom option = None
@@ -174,118 +155,12 @@ we need to remove the old node
                 createVirtualDom (List.head attributes.Children) currentPath
 
         let newVirtualDom = createVirtualDom element []
-        let reconciledVirtualDom = reconcile currentVirtualDom newVirtualDom
+        // TODO: again, the reconciliation  doesnt work. Skip it for now :D
+        //let reconciledVirtualDom = reconcile currentVirtualDom newVirtualDom
 
-        currentVirtualDom <- Some <| reconciledVirtualDom
+        //currentVirtualDom <- Some <| reconciledVirtualDom
 
-        printfn "%A" reconciledVirtualDom
-
-        container.innerText <- ""
-
-        //newVirtualDom
-        reconciledVirtualDom
+        newVirtualDom
+        //reconciledVirtualDom
         |> createDomElement
         |> attach container
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // Vi trenger 2 V-Doms
-    // - Nåværende og den vi vil tegne
-    // Så vil vi finne diffen mellom disse to
-
-
-
-
-    (*
-    let rec private createElement element =
-        match element with
-        | Str s ->
-            document.createTextNode s |> TextNode
-        | _ ->
-            document.createElement (duToString element) |> DomNode.ElementNode
-
-    let rec attachElement (container: Browser.Types.HTMLElement) (attributes: HtmlAttributes) domNode =
-        match domNode with
-        | TextNode t ->
-            container.appendChild t |> ignore
-        | ElementNode e ->
-            if attributes.ClassName.IsSome then
-                e.setAttribute("class", attributes.ClassName.Value)
-            if attributes.Type.IsSome then
-                e.setAttribute("type", duToString attributes.Type.Value)
-            if attributes.OnClick.IsSome then
-                e.addEventListener("click", fun _ -> attributes.OnClick.Value ())
-                                                // Hack hack hack
-                                                //rootContainer.innerHTML <- ""
-                                                // render myView rootContainer)
-            List.iter (fun (element, attributes) -> createElement element) |> attachElement e (attributes ()) attributes.Children
-            container.appendChild e |> ignore
-
-let rec private reconcile (currentDom: Html) (newDom: Html) =
-        let (currentDomElement, currentDomAttributes) = currentDom
-        let (newDomElement, newDomAttributes) = newDom
-
-        if currentDomElement = newDomElement then
-            // Keys her?
-            let children =
-                if List.length newDomAttributes.Children > List.length currentDomAttributes.Children then
-                    newDomAttributes.Children
-                else
-                    List.map2 reconcile currentDomAttributes.Children newDomAttributes.Children
-            (currentDomElement, {newDomAttributes with Children = children })
-        else
-            newDom
-*)
-
-
-    /////////////////////////
-
-
-    (*
-    type Fiber =
-        { Type: Html
-          Attributes: HtmlAttributes
-          DomElement: DomNode
-          Path: PathElement list
-          Key: string
-          Children: Fiber list
-        }
-        Type: Div/BUutton (min type)
-        Attributes: HtmlAttributes
-        Element: HTMLElement
-        Path: string list
-        Key: Unikt identifisere denne
-        State: Har denne state?
-        let mutable foobar: Fiber option = None
-    *)
-
-    //let mutable rootElement: Html option = None
-
-        //let (element', attributes) = element
-        //match rootElement with
-        //| None ->
-        //let domElement = createElement element' (attributes ())
-        //attachElement container (attributes ()) domElement
-        //rootElement <- Some element
-        //| Some model ->
-        //    let (newElement, newAttributes) = reconcile model element
-        //    container.innerText <- ""
-        //    let domElement = createElement newElement
-         //   attachElement container (newAttributes ()) domElement

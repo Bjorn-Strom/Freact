@@ -32,6 +32,7 @@ module Lib =
         { ClassName: string option
           // Burde være Browser.Types.Mouseevent -> unit?
           OnClick: (unit -> unit) option
+          OnChange: (Browser.Types.Event -> Unit) option
           Type: Type option
           Children: Html list
         }
@@ -42,6 +43,7 @@ module Lib =
         (Component <| (comp.ToString()), fun () ->
             { ClassName = None
               OnClick = None
+              OnChange = None
               Type = None
               Children = [ comp props ]
             })
@@ -51,6 +53,7 @@ module Lib =
           fun () ->
             { ClassName = None
               OnClick = None
+              OnChange = None
               Type = None
               Children = children
             }
@@ -74,6 +77,10 @@ module Lib =
     let onClick onClick (f: Html list -> Html) (children: Html list): Html =
         let (element, attributes) = f children
         element, fun () -> { attributes () with OnClick = Some onClick }
+
+    let onChange (onChange: Browser.Types.Event -> Unit) (f: Element * (unit -> HtmlAttributes)): Html =
+        let (element, attributes) = f
+        element, fun () -> { attributes () with OnChange = Some onChange }
 
     type type' =
         static member password f =
