@@ -13,7 +13,7 @@ module playground =
     let background =
         fss [ BackgroundColor.salmon ]
 
-    let text =
+    let text=
         fss [ TextAlign.right ]
 
     let spinimation =
@@ -171,9 +171,22 @@ module playground =
     render myView rootContainer
 
     reRender <- fun () ->
-        rootContainer.innerHTML <- ""
+        //rootContainer.innerHTML <- ""
         render myView rootContainer
 
 
+    let reconcileTest1 =
+        div
+         <| [ div <| [ p <| [ str "Hello there" ] ]
+              div <| []
+            ]
+
+    let reconcileTest2 =
+        div
+         <| [ div <| [ button <| [ str "Hello son!" ] ]
+              div <| []
+            ]
 
 
+    //render reconcileTest1 rootContainer
+    //render reconcileTest2 rootContainer

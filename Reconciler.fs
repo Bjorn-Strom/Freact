@@ -77,6 +77,47 @@ module Reconciler =
             List.iter (fun x -> attach e x) dom.Children
             container.appendChild e |> ignore
 
+    let rec private reconcile (currentDom: VirtualDom option) (newDom: VirtualDom): VirtualDom =
+        printfn "CurrentDom: %A" currentDom
+        printfn "NewDom: %A" newDom
+
+        (*
+
+if the old fiber and the new element have the same type,
+we can keep the DOM node and just update it with the new props
+
+if the type is different and there is a new element,
+it means we need to create a new DOM node
+
+and if the types are different and there is an old fiber,
+we need to remove the old node
+
+        *)
+
+        match currentDom with
+        | Some dom ->
+            let (currentElement, currentAttributes) = dom
+            let (newElement, newAttributes) = newDom
+
+            printfn "Dom already exists, reconciling..."
+
+            // Er det samme element? Reconcile barna
+            if currentElement = newElement then
+                printfn "THe elements are the same, we need to reconcile the children"
+                let reconciledChildren = List.map2 (fun c n -> reconcile (Some c) n) currentAttributes.Children newAttributes.Children
+                (newElement, { newAttributes with Children = reconciledChildren })
+            // Dersom typen er forskjellig bruker vi den nye
+            else
+                printfn "The elements are not the same. Just use the new one"
+                newDom
+        // Hvis currentdom ikke finnes, bruk newDom
+        | None ->
+            printfn "No dom exists. Use newDom"
+            printfn ""
+            newDom
+
+    let mutable currentVirtualDom: VirtualDom option = None
+
     let render (element: Html) (container: HTMLElement) =
         let rec createVirtualDom (element: Element * (unit -> HtmlAttributes)) (path: PathElement list) =
             let (element, attributes: unit -> HtmlAttributes) = element
@@ -132,7 +173,17 @@ module Reconciler =
             | Element.Component c ->
                 createVirtualDom (List.head attributes.Children) currentPath
 
-        createVirtualDom element []
+        let newVirtualDom = createVirtualDom element []
+        let reconciledVirtualDom = reconcile currentVirtualDom newVirtualDom
+
+        currentVirtualDom <- Some <| reconciledVirtualDom
+
+        printfn "%A" reconciledVirtualDom
+
+        container.innerText <- ""
+
+        //newVirtualDom
+        reconciledVirtualDom
         |> createDomElement
         |> attach container
 
@@ -155,10 +206,9 @@ module Reconciler =
 
 
 
-
-
-
-
+    // Vi trenger 2 V-Doms
+    // - Nåværende og den vi vil tegne
+    // Så vil vi finne diffen mellom disse to
 
 
 
