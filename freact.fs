@@ -25,8 +25,6 @@ module Lib =
         | Input
         | Button
         | Str of string
-        | Component of string
-
 
     and HtmlAttributes =
         { ClassName: string option
@@ -38,15 +36,6 @@ module Lib =
         }
 
     and Html = Element * (unit -> HtmlAttributes)
-
-    let ( </> ) comp props: Html =
-        (Component <| (comp.ToString()), fun () ->
-            { ClassName = None
-              OnClick = None
-              OnChange = None
-              Type = None
-              Children = [ comp props ]
-            })
 
     let createNode element children: Html =
           element,

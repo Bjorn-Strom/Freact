@@ -7,7 +7,6 @@ module Reconciler =
 
     open Freact
     open Lib
-    open Hooks
 
     // Used to build a virtual dom, AKA what do we want to draw
     type VirtualDomElement =
@@ -83,12 +82,12 @@ module Reconciler =
             container.appendChild e |> ignore
 
     let rec render (element: unit -> Html) =
-        reRender <- fun () ->
+        Hooks.reRender <- fun () ->
             render element
         let element = element ()
         let dom = document.getElementById "app"
         dom.innerHTML <- ""
-        NewHooks.currentHook <- 0
+        Hooks.currentHook <- 0
         let rec createVirtualDom (element: Element * (unit -> HtmlAttributes)) =
             let (element, attributes: unit -> HtmlAttributes) = element
             let attributes = attributes ()
@@ -112,16 +111,11 @@ module Reconciler =
             | Element.Div ->
                 Div, (createVirtualDomAttributes attributes children)
             | Element.Input ->
-                //path <- duToString element
                 Input, (createVirtualDomAttributes attributes children)
             | Element.Button ->
-                //path <- duToString element
                 Button, (createVirtualDomAttributes attributes children)
             | Element.Str s ->
-                //path <- duToString element
                 Str s, (createVirtualDomAttributes attributes children)
-            | Element.Component c ->
-                createVirtualDom (List.head attributes.Children) //currentPath
 
         createVirtualDom element //[]
         |> createDomElement
