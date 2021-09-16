@@ -4,18 +4,11 @@ open Freact
 open Fable.Core.JsInterop
 
 module playground =
-    open Browser.Dom
     open Fss
 
     open Lib
     open Reconciler
     open Hooks
-
-    let background =
-        fss [ BackgroundColor.salmon ]
-
-    let text=
-        fss [ TextAlign.right ]
 
     let spinimation =
         let spin =
@@ -40,66 +33,6 @@ module playground =
               FlexDirection.column
               Width' <| px 200 ]
 
-    let clicker () =
-        let length = 100
-        let (blocks, setBlocks) = useState<int array> (Array.create length 0)
-        let hover n = fss [
-            BorderColor.black
-            BorderStyle.solid
-            BorderWidth.thin
-            Width' <| px 20
-            Height' <| px 20
-            if n = 1 then BackgroundColor.red
-            Hover [ BackgroundColor.blue ] ]
-        div
-            |> className (fss [Display.flex; FlexDirection.row; FlexWrap.wrap])
-            <| (blocks
-            |> Array.mapi (fun index value ->
-                div
-                |> className (hover value)
-                |> onClick (fun _ ->
-                    blocks.[index] <- if blocks.[index] = 1 then 0 else 1
-                    setBlocks blocks)
-                <|  []) |> Array.toList)
-
-    let counter props =
-        let (counter, setCounter) = useState<int>(props)
-        div
-            <| [ button |> onClick (fun _ ->
-                    setCounter (counter + 1))
-                    <| [ str "+" ]
-
-                 button |> onClick (fun _ ->
-                    setCounter (counter - 1))
-                    <| [ str "-" ]
-
-                 p <| [ str <| string counter ]
-               ]
-
-    let appearDissapear =
-        let aComponent () =
-            let (count, setCount) = useState 0
-            div <| [
-                button
-                |> onClick (fun _ -> setCount (count + 1))
-                <| [ str "+" ]
-                button
-                |> onClick (fun _ -> setCount (count - 1))
-                <| [ str "-" ]
-                str (string count)
-                if count > 5 then
-                    h2 [ str "Text is big now" ]
-                else if count <  -5 then
-                    h2 [ str "Text is small now" ]
-            ]
-
-        div
-            <| [
-                h2 <| [ str "Hello" ]
-                aComponent </> ()
-
-            ]
-
     let loginForm () =
          let (username, setUsername) = useState ""
          let (password, setPassword) = useState ""
@@ -120,44 +53,59 @@ module playground =
                     <| [ str "Click me!" ]
                ]
 
-    let setStateTests =
+    let colorCounter start =
         div <|
-           [ h2 <| [ str "Set state testing" ]
+           [ str "A color counter"
+             let (counter, setCounter) = NewHooks.useState<int>(start)
+             let style =
+                 fss [
+                     if counter >= 5 then
+                         Color.green
+                     if counter <= -5 then
+                         Color.red
+                 ]
+             div
+                <| [ button |> onClick (fun _ ->
+                        setCounter (counter + 1))
+                        <| [ str "+" ]
 
-             str "A counter"
-             counter </> 0
-             str "A clicker that changes color"
-             clicker </> ()
-             str "A clicker that renders text conditionally"
-             appearDissapear
-             str "Please log in"
-             loginForm </> ()
+                     button |> onClick (fun _ ->
+                        setCounter (counter - 1))
+                        <| [ str "-" ]
+
+                     p |> className style <| [ str <| string counter ]
+                   ]
             ]
 
-    let app =
+    let appearCounter start =
+        div <|
+           [ str "A appear counter"
+             let (counter, setCounter) = NewHooks.useState<int>(start)
+             div
+                <| [ button |> onClick (fun _ ->
+                        setCounter (counter + 1))
+                        <| [ str "+" ]
+
+                     button |> onClick (fun _ ->
+                        setCounter (counter - 1))
+                        <| [ str "-" ]
+
+                     p <| [ str <| string counter ]
+                     if counter >= 5 then
+                        p <| [ str "It is above 5" ]
+                     else if counter <= -5 then
+                        p <| [ str "It is below 5" ]
+                   ]
+            ]
+
+    let app () =
         div
-            <| [ div
-                    |> className background
-                    <| [ h1 <| [ str "Hello world" ]
-
-                         div
-                            |> className spinimation
-                            <| [ ]
-
-                         h2
-                            |> className text
-                            <| [ str "from Freact" ]]
-
-                 setStateTests
+            <| [ h3 <| [ str "Set state testing" ]
+                 colorCounter 0
+                 colorCounter 5
+                 appearCounter 0
+                 appearCounter 5
                 ]
 
 
-    let rootContainer = document.getElementById "app"
-
-
-
-    render app rootContainer
-
-    reRender <- fun () ->
-        rootContainer.innerText <- ""
-        render app rootContainer
+    render app

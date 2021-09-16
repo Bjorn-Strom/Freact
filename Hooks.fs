@@ -29,5 +29,37 @@ module Hooks =
             let replace = newState :> obj
             stateMap <- stateMap.Add(p, List.mapi (fun index obj -> if i = index then replace else obj) s)
             reRender ()
-            ()
         state, setState
+
+module NewHooks =
+    let mutable hooks: obj array = Array.zeroCreate 10
+    let mutable currentHook = 0
+
+    let useState<'t> (initialValue: 't) =
+        if hooks.[currentHook] = null then
+            printfn "Using initial value"
+            hooks.[currentHook] <- initialValue :> obj
+
+        let setStateHookIndex = currentHook
+
+        printfn "Setting initial hook state %A" initialValue
+        printfn "hooks is: %A" hooks
+
+        let setState (newState: 't) =
+            printfn "Set state: %A" newState
+            printfn "Hooks is: %A" hooks
+            printfn "Set state hook index : %A" currentHook
+            // her må vi sjekke om det er en funksjon
+            hooks.[setStateHookIndex] <- newState :> obj
+            Hooks.reRender()
+
+        let currentState = (box hooks.[setStateHookIndex]) :?> 't
+
+        currentHook <- currentHook + 1
+        printfn "Incrementing current hook. Is now: %A" currentHook
+        currentState, setState
+
+
+
+
+

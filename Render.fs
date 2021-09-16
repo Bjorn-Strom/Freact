@@ -82,85 +82,47 @@ module Reconciler =
             List.iter (fun x -> attach e x) dom.Children
             container.appendChild e |> ignore
 
-    // Crappy reconciliation that doesnt work. FIX!
-    let rec private reconcile (currentDom: VirtualDom option) (newDom: VirtualDom): VirtualDom =
-        match currentDom with
-        | Some dom ->
-            let (currentElement, currentAttributes) = dom
-            let (newElement, newAttributes) = newDom
-
-            if currentElement = newElement then
-                let reconciledChildren = List.map2 (fun c n -> reconcile (Some c) n) currentAttributes.Children newAttributes.Children
-                (newElement, { newAttributes with Children = reconciledChildren })
-            else
-                newDom
-        | None ->
-            newDom
-
-    let mutable currentVirtualDom: VirtualDom option = None
-
-    let render (element: Html) (container: HTMLElement) =
-        let rec createVirtualDom (element: Element * (unit -> HtmlAttributes)) (path: PathElement list) =
+    let rec render (element: unit -> Html) =
+        reRender <- fun () ->
+            render element
+        let element = element ()
+        let dom = document.getElementById "app"
+        dom.innerHTML <- ""
+        NewHooks.currentHook <- 0
+        let rec createVirtualDom (element: Element * (unit -> HtmlAttributes)) =
             let (element, attributes: unit -> HtmlAttributes) = element
-            currentIndex <- 0
-            currentPath <- path
-            currentState <-
-                if (stateMap.TryFind currentPath).IsSome then
-                    stateMap.[currentPath]
-                else
-                    []
             let attributes = attributes ()
-            stateMap <- stateMap.Add(currentPath, currentState)
             let children: VirtualDom list =
-                List.mapi (fun i x -> createVirtualDom x
-                                          (let element, _ = x
-                                           let nameOfElement = duToString element
-                                           currentPath @ [{ Name = nameOfElement; Index = i }])) attributes.Children
-            let mutable path = "";
+                List.mapi (fun i x -> createVirtualDom x) attributes.Children
             match element with
             | Element.H1 ->
-                path <- duToString element
                 H1, (createVirtualDomAttributes attributes children)
             | Element.H2 ->
-                path <- duToString element
                 H2, (createVirtualDomAttributes attributes children)
             | Element.H3 ->
-                path <- duToString element
                 H3, (createVirtualDomAttributes attributes children)
             | Element.H4 ->
-                path <- duToString element
                 H4, (createVirtualDomAttributes attributes children)
             | Element.H5 ->
-                path <- duToString element
                 H5, (createVirtualDomAttributes attributes children)
             | Element.H6 ->
-                path <- duToString element
                 H6, (createVirtualDomAttributes attributes children)
             | Element.P ->
-                path <- duToString element
                 P, (createVirtualDomAttributes attributes children)
             | Element.Div ->
-                path <- duToString element
                 Div, (createVirtualDomAttributes attributes children)
             | Element.Input ->
-                path <- duToString element
+                //path <- duToString element
                 Input, (createVirtualDomAttributes attributes children)
             | Element.Button ->
-                path <- duToString element
+                //path <- duToString element
                 Button, (createVirtualDomAttributes attributes children)
             | Element.Str s ->
-                path <- duToString element
+                //path <- duToString element
                 Str s, (createVirtualDomAttributes attributes children)
             | Element.Component c ->
-                createVirtualDom (List.head attributes.Children) currentPath
+                createVirtualDom (List.head attributes.Children) //currentPath
 
-        let newVirtualDom = createVirtualDom element []
-        // TODO: again, the reconciliation  doesnt work. Skip it for now :D
-        //let reconciledVirtualDom = reconcile currentVirtualDom newVirtualDom
-
-        //currentVirtualDom <- Some <| reconciledVirtualDom
-
-        newVirtualDom
-        //reconciledVirtualDom
+        createVirtualDom element //[]
         |> createDomElement
-        |> attach container
+        |> attach dom

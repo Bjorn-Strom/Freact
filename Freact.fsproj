@@ -8,7 +8,7 @@
   <ItemGroup>
     <Compile Include="freact.fs" />
     <Compile Include="Hooks.fs" />
-    <Compile Include="Reconciler.fs" />
+    <Compile Include="Render.fs" />
     <Compile Include="playground.fs" />
   </ItemGroup>
 
