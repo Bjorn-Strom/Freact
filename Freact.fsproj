@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Utils.fs" />
     <Compile Include="freact.fs" />
     <Compile Include="Hooks.fs" />
     <Compile Include="Render.fs" />
