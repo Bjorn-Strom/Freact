@@ -1,27 +1,26 @@
 namespace Freact
 
-module Hooks =
+[<RequireQualifiedAccess>]
+module HookInternals =
     let mutable reRender = fun () -> ()
-    let mutable hooks: obj array = Array.zeroCreate 10
+    let mutable hooks: ResizeArray<obj> = ResizeArray([])
     let mutable currentHook = 0
 
-    let useState<'t> (initialValue: 't) =
-        if hooks.[currentHook] = null then
-            hooks.[currentHook] <- initialValue :> obj
+[<RequireQualifiedAccess>]
+module Hooks =
+    type Hooks =
+        static member useState<'t> (initialValue: 't) =
+            if HookInternals.hooks.[HookInternals.currentHook] = null then
+                HookInternals.hooks.[HookInternals.currentHook] <- initialValue :> obj
 
-        let setStateHookIndex = currentHook
+            let setStateHookIndex = HookInternals.currentHook
 
-        let setState (newState: 't) =
-            // her må vi sjekke om det er en funksjon
-            hooks.[setStateHookIndex] <- newState :> obj
-            reRender()
+            let setState (newState: 't) =
+                // her må vi sjekke om det er en funksjon
+                HookInternals.hooks.[setStateHookIndex] <- newState :> obj
+                HookInternals.reRender()
 
-        let currentState = (box hooks.[setStateHookIndex]) :?> 't
+            let currentState = (box HookInternals.hooks.[setStateHookIndex]) :?> 't
 
-        currentHook <- currentHook + 1
-        currentState, setState
-
-
-
-
-
+            HookInternals.currentHook <- HookInternals.currentHook + 1
+            currentState, setState

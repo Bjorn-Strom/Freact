@@ -82,17 +82,16 @@ module Reconciler =
             container.appendChild e |> ignore
 
     let rec render (element: unit -> Html) =
-        Hooks.reRender <- fun () ->
+        HookInternals.reRender <- fun () ->
             render element
         let element = element ()
         let dom = document.getElementById "app"
         dom.innerHTML <- ""
-        Hooks.currentHook <- 0
+        HookInternals.currentHook <- 0
         let rec createVirtualDom (element: Element * (unit -> HtmlAttributes)) =
             let (element, attributes: unit -> HtmlAttributes) = element
             let attributes = attributes ()
-            let children: VirtualDom list =
-                List.mapi (fun i x -> createVirtualDom x) attributes.Children
+            let children: VirtualDom list = List.map (fun x -> createVirtualDom x) attributes.Children
             match element with
             | Element.H1 ->
                 H1, (createVirtualDomAttributes attributes children)
@@ -117,6 +116,6 @@ module Reconciler =
             | Element.Str s ->
                 Str s, (createVirtualDomAttributes attributes children)
 
-        createVirtualDom element //[]
+        createVirtualDom element
         |> createDomElement
         |> attach dom
