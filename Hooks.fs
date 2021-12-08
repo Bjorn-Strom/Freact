@@ -6,6 +6,18 @@ module HookInternals =
     let mutable hooks: ResizeArray<obj> = ResizeArray([])
     let mutable currentHook = 0
 
+[<Sealed>]
+type SetState(setStateHookIndex) =
+    member this.setState (newState: 't) =
+        HookInternals.hooks.[setStateHookIndex] <- newState :> obj
+        HookInternals.reRender()
+
+    member this.setState (newState: 't -> 't) =
+        let currentState = (box HookInternals.hooks.[setStateHookIndex]) :?> 't
+        HookInternals.hooks.[setStateHookIndex] <- newState(currentState) :> obj
+        HookInternals.reRender()
+
+
 [<RequireQualifiedAccess>]
 module Hooks =
     let useState<'t> (initialValue: 't) =
@@ -15,11 +27,15 @@ module Hooks =
         let setStateHookIndex = HookInternals.currentHook
 
         let setState (newState: 't) =
-            // her må vi sjekke om det er en funksjon
             HookInternals.hooks.[setStateHookIndex] <- newState :> obj
+            HookInternals.reRender()
+
+        let newSetState (newState: 't -> 't) =
+            let currentState = (box HookInternals.hooks.[setStateHookIndex]) :?> 't
+            HookInternals.hooks.[setStateHookIndex] <- newState(currentState) :> obj
             HookInternals.reRender()
 
         let currentState = (box HookInternals.hooks.[setStateHookIndex]) :?> 't
 
         HookInternals.currentHook <- HookInternals.currentHook + 1
-        currentState, setState
+        currentState, SetState(setStateHookIndex)

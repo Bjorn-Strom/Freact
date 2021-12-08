@@ -19,13 +19,19 @@ module playground =
                      if counter <= -5 then
                          Color.red
                  ]
+             let test =
+                 fun old ->
+                            printfn "This is a function"
+                            old + 1
              div
                 <| [ button |> onClick (fun _ ->
-                        setCounter (counter + 1))
+                        setCounter.setState (fun old ->
+                            printfn "This is a function"
+                            old + 1))
                         <| [ str "+" ]
 
                      button |> onClick (fun _ ->
-                        setCounter (counter - 1))
+                        setCounter.setState (counter - 1))
                         <| [ str "-" ]
 
                      p |> className style <| [ str <| string counter ]
@@ -38,11 +44,11 @@ module playground =
              let (counter, setCounter) = Hooks.useState<int>(start)
              div
                 <| [ button |> onClick (fun _ ->
-                        setCounter (counter + 1))
+                        setCounter.setState (counter + 1))
                         <| [ str "+" ]
 
                      button |> onClick (fun _ ->
-                        setCounter (counter - 1))
+                        setCounter.setState (counter - 1))
                         <| [ str "-" ]
 
                      p <| [ str <| string counter ]
